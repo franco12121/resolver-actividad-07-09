@@ -1,0 +1,47 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Consigna 2: Entidad Usuario (Relación 1:N con Pedido)
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  nombre    String
+  email     String   @unique
+  pedidos   Pedido[]
+  createdAt DateTime @default(now())
+}
+
+// Consigna 2: Entidad Producto (Relación 1:N con DetallePedido)
+model Producto {
+  id             Int             @id @default(autoincrement())
+  nombre         String
+  precio         Float
+  stock          Int
+  detallePedidos DetallePedido[]
+}
+
+// Consigna 2: Entidad Pedido (N:1 con Usuario y 1:N con DetallePedido)
+model Pedido {
+  id             Int             @id @default(autoincrement())
+  total          Float           @default(0.0)
+  createdAt      DateTime        @default(now())
+  usuarioId      Int
+  usuario        Usuario         @relation(fields: [usuarioId], references: [id])
+  detallePedidos DetallePedido[]
+}
+
+// Consigna 2: Entidad DetallePedido (Tabla intermedia que une Pedido y Producto)
+model DetallePedido {
+  id         Int      @id @default(autoincrement())
+  cantidad   Int
+  precioUnit Float
+  pedidoId   Int
+  pedido     Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  productoId Int
+  producto   Producto @relation(fields: [productoId], references: [id])
+}
